@@ -1,0 +1,252 @@
+{\rtf1\ansi\deff0{\fonttbl{\f0\fnil\fcharset0 Courier New;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\lang1033\f0\fs22\tab\tab\tab\tab\ul Grammar Implementation\ulnone       Tyler Despatie\par
+\tab\tab\tab\tab\tab\tab\tab\tab\tab      040-694-672\par
+\par
+\par
+<program> -> PLATYPUS \{ <opt_statements> \}\par
+FIRST(program) = \{ PLATYPUS \}\par
+\par
+\par
+\par
+<opt_statements> -> <statements> | E\par
+FIRST(opt_statements) = \{ AVID_T | SVID_T | IF | USING | INPUT | OUTPUT | E \}\par
+\par
+\par
+\par
+<statements> -> <statement> | <statements> <statement>\par
+Transformed: <statements> -> <statement> <statements^1>\par
+<statements^1> -> <statements> | E\par
+FIRST(statements) = \{ AVID_T | SVID_T | IF | USING | INPUT | OUTPUT \}\par
+FIRST(statements^1) = \{ FIRST(statements) | E \}\par
+\par
+\par
+\par
+<statement> -> <assignment statement> | <selection statement> | <iteration statement> | <input statement> | <output statement>\par
+FIRST(statement) = \{ AVID_T | SVID_T | IF | USING | INPUT | OUTPUT \}\par
+\par
+\par
+\par
+<assignment statement> -> <assignment expression>;\par
+FIRST(assignment statement) = \{ AVID_T | SVID_T \}\par
+\par
+\par
+\par
+<assignment expression> -> <arithmetic expression> | \par
+\tab\tab\tab\tab\tab <string expression>\par
+FIRST(assignment expression) = \{ AVID_T | SVID_T \}\par
+\par
+\par
+\par
+<selection statement> -> IF (<conditional expression>) THEN \tab\tab\tab\tab\tab\tab    <opt_statements>\par
+                         ELSE \{ <opt_statements> \} ;\par
+FIRST(selection statement) = \{ IF \}\par
+\par
+\par
+\par
+<iteration statement> -> USING (<assignment expression>, \tab\tab\tab\tab\tab\tab\tab     <conditional expression>,  \par
+                                <assignment expression> )\par
+                         REPEAT \{ < opt_statements> \};\par
+FIRST(iteration statement) = \{ USING \}\par
+\par
+\par
+\par
+<input statement> -> INPUT (<variable list>);\par
+FIRST(input statement) = \{ INPUT \}\par
+\par
+\par
+\par
+<variable identifier> -> <arithmetic variable identifier> | \tab\tab\tab\tab\tab     <string variable identifier>\par
+FIRST(variable identifier) = \{ AVID_T | SVID_T \}\par
+\par
+\par
+\par
+<variable list> -> <variable identifier> | <variable list>,\tab\tab\tab\tab    <variable identifier>\par
+Transformed: \par
+\tab <variable list> -> <variable identifier> <variable list^1>\par
+\par
+<variable list^1>-> ,<variable identifier> <variable list^1> | E\par
+FIRST(variable list) = \{ AVID_T, SVID_T \}\par
+FIRST(variable list^1) = \{ , , E \}\par
+\par
+\par
+\par
+<opt_variable list> -> <variable list> | E\par
+FIRST(opt_variable list) = \{ AVID_T, SVID_T, E \}\par
+\par
+\par
+\par
+\par
+<output statement> -> \par
+\tab\tab\tab  OUTPUT (<opt_variable list>); | OUTPUT (STR_T);\par
+Transformed: \par
+\tab\tab  \tab  <output statement> -> OUTPUT(<ouptut list>);\par
+\par
+<output list> -> <opt_variable list> | STR_T\par
+FIRST(output statement) = \{ OUTPUT \}\par
+FIRST(output list) = \{ AVID_T, SVID_T, STR_T, E \}\par
+\par
+\par
+\par
+\par
+<arithmetic expression> -> \par
+<unary arithmetic expression> | <additive arithmetic expression>\par
+FIRST(arithmetic expression) = \{ -, +, AVID_T, FPL_T, INL_T, ( \}\par
+\par
+\par
+\par
+\par
+<unary arithmetic expression> -> \par
+\tab\tab\tab\tab\tab - <primary arithmetic expression>\par
+                         | + <primary arithmetic expression>\par
+FIRST(unary arithmetic expression) = \{ -, + \}\par
+\par
+\par
+\par
+\par
+\b /* Note "arithmetic" shortened to "arith" due to page size */\b0\par
+<additive arith expression> ->\par
+<additive arith expression> + <multiplicative arith expression>\par
+|<additive arith expression> - <multiplicative arith expression>\par
+| <multiplicative arith expression>\par
+\par
+Transformed: <additive arith expression> ->\par
+<multiplicative arith expression><additive arith expression^1>\par
+\par
+<additive arith expression^1> ->\par
++ <multiplicative arith expression><additive arith expression^1>\par
+|-<multiplicative arith expression><additive arith expression^1> \par
+| E \par
+\par
+FIRST(additive arith expression) = \{ AVID_T, FPL_T, INL_T, ( \}\par
+FIRST(additive arith expression^1) = \{ +, - , E \} \par
+\par
+\par
+\par
+\par
+<multiplicative arith expression> ->\par
+<multiplicative arith expression> * <primary arith expression>\par
+| <multiplicative arith expression> / <primary arith expression>\par
+| <primary arith expression>\par
+\par
+Transformed: <multiplicative arith expression> ->\par
+<primary arith expression><multiplicative arith expression^1> \par
+\par
+<multiplicative arith expression^1> ->\par
+* <primary arith expression><multiplicative arith expression^1>\par
+| /<primary arith expression><multiplicative arith expression^1> | E\par
+\par
+FIRST(multiplicative arith expression)=\{AVID_T, FPL_T, INL_T,( \} \par
+FIRST(multiplicative arith expression^1) = \{ *, / , E \}\par
+\par
+\par
+\par
+\par
+<primary arith expression> -> \par
+\tab\tab\tab  AVID_T | FPL_T | INL_T | (<arithm expression>)\par
+FIRST(primary arith expression) = \{ AVID_T, FPL_T, INL_T, ( \}\par
+\par
+\par
+\par
+\par
+<string expression> -> \par
+<primary string expression> \par
+| <string expression> <> <primary string expression>\par
+\par
+Transformed: <string expression> -> \par
+<primary string expression> <string expression^1>\par
+\par
+<string expression^1> -> \par
+<> <primary string expression> <string expression^1> | E\par
+\par
+FIRST(string expression) = \{ SVID_T, STR_T \}\par
+FIRST(string expression^1) = \{ <>, E \}\par
+\par
+\par
+\par
+\par
+<primary string expression> -> SVID_T | STR_T\par
+FIRST(primary string expression) = \{ SVID_T, STR_T \} \par
+\par
+\par
+\par
+\par
+<conditional expression> -> <logical OR expression>\par
+FIRST(conditional expression) = \{ AVID_T, FPL_T, INL_T, SVID_T, STR_T \}\par
+\par
+\par
+\par
+\par
+<logical OR expression> -> <logical AND expression>\par
+         | <logical OR expression> .OR. <logical AND expression>\par
+\par
+Transformed: <logical OR expression> -> \par
+<logical AND expression> <logical OR expression^1>\par
+\par
+<logical OR expression^1> -> \par
+.OR. <logical AND expression> <logical OR expression^1> | E\par
+\par
+FIRST(logical OR expression) = \{  AVID_T, FPL_T, INL_T, SVID_T, STR_T \}\par
+FIRST(logical OR expression^1) = \{ .OR., E \}\par
+\par
+\par
+\par
+<logical AND expression> -> <relational expression> \par
+                          | <logical AND expression> .AND. <relational expression>\par
+Transformed: <logical AND expression> -> <relational expression> <logical AND expression^1>\par
+<logical AND expression^1> -> .AND. <relational expression> <logical AND expression^1> | E\par
+FIRST(logical AND expression) = \{ AVID_T, FPL_T, INL_T, SVID_T, STR_T \}\par
+FIRST(logical AND expression^1) = \{ .AND., E \} \par
+\par
+\par
+\par
+\b /*NOTE: "expression" shortened to "expr" because of page width*/\b0\par
+<relational expr> ->\par
+<primary a_relational expr> == <primary a_relational expr>\par
+| <primary a_relational expr> != <primary a_relational expr>\par
+| <primary a_relational expr> > <primary a_relational expr>\par
+| <primary a_relational expr> < <primary a_relational expr>\par
+| <primary s_relational expr> == <primary s_relational expr>\par
+| <primary s_relational expr> != <primary s_relational expr>\par
+| <primary s_relational expr> > <primary s_relational expr>\par
+| <primary s_relational expr> < <primary s_relational expr>\par
+\par
+Transformed: <relational expr> ->\par
+<primary a_relational expr><relational expr^1>\par
+| <primary s_relational expr><relational expr^2>\par
+\par
+<relational expr^1> -> ==  <primary a_relational expr> \par
+| !=  <primary a_relational expr> \par
+| >   <primary a_relational expr> \par
+| <   <primary a_relational expr>\par
+\par
+<relational expr^2> -> ==  <primary s_relational expr>\par
+| !=  <primary s_relational expr>\par
+| >   <primary s_relational expr>\par
+| <   <primary s_relational expr>\par
+FIRST(relational expr) = \{ AVID_T, FPL_T, INL_T, SVID_T, STR_T \}\par
+FIRST(relational expr^1) = \{ ==, !=, >, < \}\par
+FIRST(relational expr^2) = \{ ==, !=, >, < \}\par
+\par
+\par
+\par
+\par
+<primary a_relational expr> -> AVID_T | FPL_T | INL_T\par
+FIRST(primary a_relational expr) = \{ AVID_T, FPL_T, INL_T \}\par
+\par
+\par
+\par
+<primary s_relational expr> -> <primary string expr>\par
+FIRST(primary s_relational expr) = \{ SVID_T, STR_T \} \par
+\par
+ \par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+\par
+}
+ 
